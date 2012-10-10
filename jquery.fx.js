@@ -38,6 +38,7 @@
 
 (function($) {
    
+    'use strict';
         
     $.fxConfig = {
 		duration: 700,
@@ -87,14 +88,14 @@
 			div = document.createElement('div');
             
 		function testProperty( prop ){
-            return getPrefixed( prop ) == false ? false : true;
+			if ( prop in div.style ) return true;  
+			else return getPrefixed( prop ) == false ? false : true;
         };
         
 		function getPrefixed ( prop, cssformat ) {
+
 		   var formatForCss = cssformat || true,
-		       propd;
-		       
-           if ( prop in div.style ) return true;  
+		       propd, l = vendors.length;
            
            propd = prop.replace(/(^[a-z])/g, function(val) {  
               return val.toUpperCase();
@@ -102,7 +103,7 @@
               return a.toUpperCase();
            });  
 			
-		   l = vendors.length;
+		   
 		   
 	       while( l-- ){
 	          if ( vendors[l] + propd in div.style  ){
@@ -165,19 +166,19 @@
     })();
     
     function startAnimationFrame(){
-    	startTime = window.mozAnimationStartTime || Date.now();
-    	stopRAF = false;
+    	window.startTime = window.mozAnimationStartTime || Date.now();
+    	window.stopRAF = false;
     	requestAnimationFrame( enterFrame );
     };
     
     function stopAnimationFrame(){
-    	stopRAF = true;
+    	window.stopRAF = true;
     };
     
 	function enterFrame( timestamp ){
 
         var drawStart = (timestamp || Date.now()),
-        	diff = drawStart - startTime,
+        	diff = drawStart - window.startTime,
             f;
                 
         if( diff < $.fx.interval ){
@@ -187,7 +188,7 @@
 		for( f in fxQueue ){
 			fxQueue[f].update( diff );
 		}
-        startTime = drawStart;
+        window.startTime = drawStart;
 		if(!stopRAF)requestAnimationFrame( enterFrame );
 	};
 
@@ -237,12 +238,13 @@
 
 		getCurrentVal: function( p, method, parse ){
 			
+
 		   var self = this,
 		       elem = this.elem,
 		   	   prop = p || this.prop,
 		   	   val, valParts, reg, cases, m,
 			   method = method || 'def';
-				
+
 			   if( typeof parse === 'undefined' ) parse = true;
 			   
 			   cases = {
@@ -256,13 +258,14 @@
 			   			}
 			   		},
 			   		gas: function(){
-
 			    	   //reg = new RegExp('\\-([a-zA-Z])*\\-transform\\s*:\\s*translate3?d?\\s*\\(([0-9.\-]*)px\\s*\\,\\s*([0-9.\-]*)px\\s*(\\,\\s*([0-9.\-])*p(x|t))?\\)','g');
 			           reg = new RegExp('\\-([a-zA-Z])*\\-transform\\s*:\\s*translate3?d?\\s*\\(([0-9.\-]*)px\\s*\\,\\s*([0-9.\-]*)px\\s*(\\,\\s*([0-9.\-])*p(x|t))?\\s*\\)?','g');
 			           $(elem).attr( 'style' ).replace(reg, function( match, prefx, x, y, z ){
 			               m = 'matrix(1, 0, 0, 1, ' + x + ', ' + y + ')';
 			           });
+
 			           return m;
+
 			   		},
 			   		def: function(){
 			   			return $(elem).css( prop );
@@ -277,16 +280,18 @@
 			   }
 				
 			   if( method != 'gcs' && method != 'gas' && val.match(/matri/g) && $.attr(elem, 'style') ){
-
-					 
+					 	
 			        if( $(elem).attr( 'style' ).match( /transform/g ) ){
+
 			        	val = cases[ 'gas' ]();
 			        } else {
+
 			            prop = support.getPrefixed( 'transform' );
 			            val = cases[ 'gcs' ]();
 			        }
 
-			   }else if( val != 'none' && !val.match(/matri/g) ) {
+			   } else if ( val != 'none' && !val.match(/matri/g) ) {
+	
 			   	   valParts = this.getUnit( val );
 			   	   if( this.unit != undefined && valParts[3] != this.unit ){
 			   	       val = this.convertPercentPx( valParts[2], 'tpc' );
@@ -294,8 +299,8 @@
 			   	       val = parseFloat( val );	
 			   	   }
 		   	   }
-		   	   
-		   	   return val === "auto" ? 0 : val;
+
+		   	   return val;
 	    },
 	
 	    isTranslatable: function(){
@@ -314,6 +319,7 @@
 		   	   initMatrix, initArray, x, y; 
 		   	   
 		   initMatrix = this.getCurrentVal( support.getPrefixed( 'transform', false ) );
+
 		   initArray = initMatrix != 'none' ? this.cssMatrixToArray( initMatrix ) : [ 1, 0, 0, 1, 0, 0 ];
            x = prop === 'left' ? val : initArray[4];
            y = prop === 'left' ? initArray[5] : val;
@@ -326,7 +332,7 @@
     		var self = this,
     		    start = this.start = start,
     		    end = this.end = end,
-    		    initTrans, initTransArr
+    		    initTrans, initTransArr,
     		    unit = this.unit = unit,
     		    elem = this.elem,
     		    $elem = $(this.elem),
@@ -673,10 +679,10 @@
                 
 				opt = jQuery.extend( opt, optall );
 				
-				var f, start, end, unit, startunit,
+				var f, start, end, unit, startunit, endunit,
 					parts, startParts, $parent, parentDim;
 				
-				for( p in props ){
+				for( var p in props ){
     				
     				if ( rfxtypes.test( p ) ){
     					/** 
