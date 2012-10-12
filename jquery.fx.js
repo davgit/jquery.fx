@@ -102,9 +102,9 @@
            }).replace(/\-([a-z])/g, function(val,a) {  
               return a.toUpperCase();
            });  
-			
-		   
-		   
+
+
+
 	       while( l-- ){
 	          if ( vendors[l] + propd in div.style  ){
 	            return formatForCss ? cssPrefixes[l] + prop.toLowerCase() : vendors[l] + propd;
@@ -116,7 +116,7 @@
 	       }
 	       return false;
 		};
-			
+
         return {
         	cssprefix : testProperty('transform') ? getPrefixed('transform').replace('transform','') : '',
         	transition : testProperty('transition'),
@@ -207,16 +207,16 @@
 		this.prop = prop;
 		this.isTranslatable = this.isTranslatable() && support.transform && options.usetranslate;
 		this.isTransition = support.transition && self.options.usetransition;
-	
+
 	};
-	
+
 	Fx.prototype = {
 
 		getUnit: function ( val ){
 		    var rfxnum = /^([+\-]=)?([\d+.\-e]+)([a-z%]*)$/i;
 		    return rfxnum.exec( val );
 		},
-		
+
 		convertPercentPx: function( val, method ){
 			var parent = this.parent,
 				parentDim = this.parentDim,
@@ -226,7 +226,7 @@
 				}
 			return convertcase[ method ];
 		},
-		
+
 	    cssMatrixToArray: function( matrix ) {
 
 	    	var matrix,ml,i=0;
@@ -237,7 +237,7 @@
 	    },
 
 		getCurrentVal: function( p, method, parse ){
-			
+
 
 		   var self = this,
 		       elem = this.elem,
@@ -246,7 +246,7 @@
 			   method = method || 'def';
 
 			   if( typeof parse === 'undefined' ) parse = true;
-			   
+
 			   cases = {
 			   		gcs: function(){
 			   			if( window.getComputedStyle ){
@@ -273,14 +273,14 @@
 			   };
 
 			   val = cases[ method ]();
-				
-				
+
+
 			   if( typeof val === 'undefined' ){
 					val = cases[ 'def' ]();
 			   }
-				
+
 			   if( method != 'gcs' && method != 'gas' && val.match(/matri/g) && $.attr(elem, 'style') ){
-					 	
+
 			        if( $(elem).attr( 'style' ).match( /transform/g ) ){
 
 			        	val = cases[ 'gas' ]();
@@ -291,7 +291,7 @@
 			        }
 
 			   } else if ( val != 'none' && !val.match(/matri/g) ) {
-	
+
 			   	   valParts = this.getUnit( val );
 			   	   if( this.unit != undefined && valParts[3] != this.unit ){
 			   	       val = this.convertPercentPx( valParts[2], 'tpc' );
@@ -302,12 +302,12 @@
 
 		   	   return val;
 	    },
-	
+
 	    isTranslatable: function(){
 	    	//TODO Manage RIGHT & BOTTOM
 	        return this.prop == 'left' || this.prop == 'top' ? true : false;
 	    },
-	
+
 		getTranslateMode: function(x, y) {
 			return support.translate3d && this.options.usetranslate3d ? 'translate3d(' + x + 'px, ' + y + 'px, 0)' : 'translate(' + x + 'px,' + y + 'px)';
 		},
@@ -317,7 +317,7 @@
 		   var elem = this.elem,
 		   	   prop = this.prop,
 		   	   initMatrix, initArray, x, y; 
-		   	   
+
 		   initMatrix = this.getCurrentVal( support.getPrefixed( 'transform', false ) );
 
 		   initArray = initMatrix != 'none' ? this.cssMatrixToArray( initMatrix ) : [ 1, 0, 0, 1, 0, 0 ];
@@ -328,7 +328,7 @@
 		},
 
 	    createFx: function( start, end, unit ){
-	    	
+
     		var self = this,
     		    start = this.start = start,
     		    end = this.end = end,
@@ -356,7 +356,7 @@
 					$elem.css( support.cssprefix + 'backface-visibility', 'hidden' )
 					      .css( support.cssprefix + 'perspective', 1000 );
 			    }
-				
+
 				/* get a ref of the init transform values */
 				if( $elem.css( support.cssprefix + 'transform' ) != 'none' ){
 
@@ -365,10 +365,10 @@
 				} else {
 					initTrans = this.initTrans = { x:0, y:0 };
 				}
-				
+
 				/* check if we are dealing with both top and left anim using csstransform */
 			    this.isTopLeft = this.prop == 'left' ? $(elem).data('fx.top') : $(elem).data('fx.left');
-			    
+
 			    /* apply css transform event if it is was alreay defined to write it as inline css */
 				//$(elem).css( support.cssprefix + 'transform', self.getTranslateMode( initTrans.x, initTrans.y ) );
 
@@ -381,20 +381,20 @@
 					easing = $.csseasing[ options.easing ],
 					transEventPrefix, transEventName, transEvent;
                 
-				
+
 				transEvent = support.getPrefixed( 'transitionEvent' );
 				if( transEvent ){
 					transEventPrefix = transEvent.replace( 'TransitionEvent', '' ).toLowerCase();
 					transEventName = this.transEventName = transEventPrefix != '' ? transEventPrefix + 'TransitionEnd' : 'transitionend';
 					$elem.bind( transEventName, function(){ self.fxEnd() });
 				}
-				
+
 				/* add the css transition only once per anim */				
 				if( $elem.css( support.cssprefix + 'transition-duration' ) === "0s" ){
 				    $elem.css( support.cssprefix + 'transition', 'all ' + dur + 's')
             	         .css( support.cssprefix + 'transition-timing-function', easing );
 				}
-			    
+
 			    /**
 			     * use a setTimeout to apply the values asynchrounously to allow the transition
 			     * to start before the values are updated 
@@ -406,8 +406,8 @@
                 this.addToRAF();
             }		
 	   },
-	   
-	   
+
+
 	   addToRAF: function(){
 
            var fxid = this.fxid = numFx,
@@ -422,10 +422,10 @@
            numFx++; 
            if( stopRAF )startAnimationFrame();
 	   },
-	   
-	   
+
+
 	   applyCss: function( val, isTopLeft ){
-	   	    
+
 	   		var self = this,
 	   			unit = this.unit,
 	   			initval, trans,
@@ -439,19 +439,19 @@
 
 
 	       if( isTranslatable ){
-	       
+
 	        	initval = prop === 'left' ? this.initTrans.x : this.initTrans.y;
-	        	
+
 	        	if( unit === "%" ){
             	 	start = this.convertPercentPx( start, 'tpx' );
             	 	val   = this.convertPercentPx( val, 'tpx' );
 	            }
-	            
+
 	            /* create a new csstransform from the new value, and merge it with the actual css transform */
 	            trans = this.trans = this.getNewTranslate( ( val + initval ) - start );
 	            x = trans[0];
 			    y = trans[1];
-		        
+
 		        /**
 		         * if we are animating both the top and left using css transform
 		         * dont apply the first prop(top/left) , retrieve it's value  and merge it
@@ -481,23 +481,23 @@
 	        }
 
 	   },
-	   
+
 
 	   update: function( t ){
-	   	    
+
 	   		var elapsed = this.elapsed += t,
 		  		options = this.options,
 		  		unit = this.unit,
 		  		start = this.start,
 		  		end = this.end,
 		  		progress = this.progress += this.progressstep * t,
-		  		newval;
-			
+		  		newval, e;
+
             if( progress >= 100 ){
                 this.fxEnd();
                 return false;
 	        }   
-	        
+
 			if( jQuery.easing != undefined && jQuery.easing[ options.easing ]){
 			   e = $.easing[ options.easing ]( 0, elapsed, 0, 100, options.duration );
 			}else{
@@ -509,9 +509,9 @@
             
             this.applyCss( newval );
 	   },
-	   
+
 	   fxEnd: function(){
-	   
+
 		   var self = this,
 		       prop = this.prop,
 		       end = this.end,
@@ -522,18 +522,18 @@
 		       transEventName = this.transEventName,
     		   isTransition = this.isTransition,
 		       complete;        
-	   	   
+
 	       if( isTransition ){
 	               /* unbind transitionend event to avoid multiple 'fxEnd' call */
 	               $elem.unbind( transEventName )
 	                    .css( support.cssprefix + 'transition', 'none' );
 	       }
-	        
+
 	       this.clearFx();
-	   	   
+
 	   	   /* set to end value because the anim never stops exactly at the specified end value */
 	   	   $elem.css( prop, end + unit );
-	   	   
+
 	   	   if( this.checkEmptyFx() && typeof options.callback != undefined ){
            	    /* user defined callback */
            	    options.callback.call( elem );
@@ -547,7 +547,7 @@
 	   },
 
 	   clearFx: function(){
-	   
+
 	       var self = this,
 	           elem = this.elem,
 	           $elem = $(this.elem),
@@ -571,7 +571,7 @@
 			    } else {
 		            curr = this.getCurrentVal( support.getPrefixed('transform'), 'gcs'  );
 			    }
-			    
+
 			    this.resetTranslate( curr );
 
 			}else{
@@ -594,7 +594,7 @@
 	        }
 
 	   },
-	   
+
 	   checkEmptyFx: function(){
 	   	    var fxs = $(this.elem).data(),
         		isEmptyFx = true, k;
@@ -607,7 +607,7 @@
         	}
         	return isEmptyFx;
 	   },
-	   
+
 	   resetTranslate: function( c ){
 
 	       var self = this,
@@ -635,12 +635,12 @@
 
            $(elem).css( self.prop, endProp );
            $(elem).css( support.cssprefix + 'transform', self.getTranslateMode( endX, endY ) );
-	           
+
 	   }
-	   
+
 	};
-	
-	
+
+
     /* --------------------------------------------------- */
     
     /* REPLACE JQUERY ANIMATE */ 
@@ -655,7 +655,7 @@
 	* @param {function} [callback] function on the animation end
 	*
 	*/
-		
+
 	$.fn.fx = function( props, speed, easing, callback ) {
 
         var optall = jQuery.speed(speed, easing, callback);
@@ -667,21 +667,21 @@
         var rfxtypes = /^(?:toggle|show|hide)$/,
         	rfxanim = /^(?:width|height|top|right|bottom|left|opacity|scrolltop)$/,
         	rfxpercent = /^(?:width|height|top|right|bottom|left)$/;
-		
+
         
 		//function doFx(){
 		return this[ optall.queue === false ? "each" : "queue" ](function() {
-				
+
 				var opt = speed && typeof speed === "object" ? $.extend( $.fxConfig, speed ) : $.fxConfig;
         		opt.duration = typeof speed === "number" ? speed : opt.duration;
                 opt.easing = easing || 'swing';
                 opt.callback = callback || function(){};
                 
 				opt = jQuery.extend( opt, optall );
-				
+
 				var f, start, end, unit, startunit, endunit,
 					parts, startParts, $parent, parentDim;
-				
+
 				for( var p in props ){
     				
     				if ( rfxtypes.test( p ) ){
@@ -706,8 +706,8 @@
 						 * the 'fx.' will help to only retrieve the fx key in $(elem).data()
 						 */
 						$(this).data( 'fx.'+p, f );
-						
-						
+
+
 						$parent = f.parent = $(this).parent();
                         parentDim = f.parentDim = p === 'left' || p == 'width' ?  $parent[ 'width' ]() : $parent[ 'height' ]();
                         if( $parent.css('position') === "static" ) $parent.css('position', 'relative');
@@ -717,7 +717,7 @@
 						startParts = f.getUnit( f.getCurrentVal( p , 'gcs', false ) );
 
 						if( parts ){
-							
+
 							endunit = parts[3] || ( $.cssNumber[ p ] ? "" : "px" );
 							startunit = startParts[3];
 							start = parseFloat( startParts[2] );//f.getCurrentVal();
@@ -744,11 +744,11 @@
 							}
                             
 							f.createFx( start, end, endunit );
-							
+
 						} else {
-							
+
 							f.createFx( start, prop[p], "" );
-							
+
 						}	                                           
     				}
     			};
@@ -762,8 +762,8 @@
         //return optall.queue === false ? this.each( doFx ) : this.queue( optall.queue, doFx );
 
 	};
-	
-	
+
+
     /* --------------------------------------------------- */
     
     /* REPLACE JQUERY STOP */
@@ -778,13 +778,13 @@
 	*/
     
 	jQuery.fn.stop = function( clearQueue, gotoEnd ) {
-		
+
 		var clearQueue = clearQueue || true,
 		    gotoEnd = gotoEnd || false,
 		    action = gotoEnd ? 'fxEnd' : 'clearFx';
-		
+
 		if (clearQueue) this.queue([]);
-		
+
         this.each(function (index){
         	var k, fxs = $(this).data();
         	for( k in fxs ){
