@@ -366,8 +366,10 @@
 				}
 
 				/* check if we are dealing with both top and left anim using csstransform */
-			    this.isTopLeft = this.prop == 'left' || this.prop == 'right' ? $(elem).data('fx.top') : $(elem).data('fx.left');
-
+			    this.isTopLeft = this.prop == 'left' || this.prop == 'right' ? 
+															    $(elem).data('fx.top') || $(elem).data('fx.bottom') :
+															    $(elem).data('fx.left') || $(elem).data('fx.right');
+					
 			    /* apply css transform event if it is was alreay defined to write it as inline css */
 				//$(elem).css( support.cssprefix + 'transform', self.getTranslateMode( initTrans.x, initTrans.y ) );
 
@@ -425,6 +427,7 @@
 
 	   applyCss: function( val, isTopLeft ){
 
+
 	   		var self = this,
 	   			unit = this.unit,
 	   			initval, trans,
@@ -438,6 +441,9 @@
 
 
 	       if( isTranslatable ){
+
+
+	       		console.log('AAPLLYY:', this.prop, this.isTopLeft);
 
 	        	initval = prop == 'left' || prop == 'right' ? this.initTrans.x : this.initTrans.y;
 
@@ -460,10 +466,11 @@
 			    if( this.isTopLeft ){
 			        clearTimeout( this.isTopLeft.fxtimer );
 			        x = this.prop === 'left' || prop == 'right' ? trans[0] : this.isTopLeft.trans[0];
-			        y = this.prop === 'top' || prop == 'right'? trans[1] : this.isTopLeft.trans[1];
+			        y = this.prop === 'top' || prop == 'bottom'? trans[1] : this.isTopLeft.trans[1];
 			    }
                 
                 if( isTransition && !this.isTopLeft ){
+                	
                     /**
                      * use a timeout of 1ms to manage the TOPLEFT case
                      * cf : read above
