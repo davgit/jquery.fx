@@ -228,7 +228,6 @@
 		},
 
 	    cssMatrixToArray: function( matrix ) {
-
 	    	var matrix,ml,i=0;
 	    	matrix = matrix.substr(7, matrix.length - 8).split(', ');
 	    	ml = matrix.length;
@@ -258,8 +257,11 @@
 			   			}
 			   		},
 			   		gas: function(){
+
+			   			console.log( 'style', $(elem).attr( 'style' ) );
+
 			    	   //reg = new RegExp('\\-([a-zA-Z])*\\-transform\\s*:\\s*translate3?d?\\s*\\(([0-9.\-]*)px\\s*\\,\\s*([0-9.\-]*)px\\s*(\\,\\s*([0-9.\-])*p(x|t))?\\)','g');
-			           reg = new RegExp('\\-([a-zA-Z])*\\-transform\\s*:\\s*translate3?d?\\s*\\(([0-9.\-]*)px\\s*\\,\\s*([0-9.\-]*)px\\s*(\\,\\s*([0-9.\-])*p(x|t))?\\s*\\)?','g');
+			           reg = new RegExp('(\\-[a-zA-Z]*\\-)?transform\\s*:\\s*translate3?d?\\s*\\(([0-9.\-]*)px\\s*\\,\\s*([0-9.\-]*)px\\s*(\\,\\s*([0-9.\-])*p(x|t))?\\s*\\)?','g');
 			           $(elem).attr( 'style' ).replace(reg, function( match, prefx, x, y, z ){
 			               m = 'matrix(1, 0, 0, 1, ' + x + ', ' + y + ')';
 			           });
