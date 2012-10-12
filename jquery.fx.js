@@ -42,6 +42,8 @@
         
     $.fxConfig = {
 		duration: 700,
+		easing: 'swing',
+		callback: function(){},
    		step: function(){},
    		usetranslate: true,
    		usetranslate3d : true,
@@ -257,17 +259,11 @@
 			   			}
 			   		},
 			   		gas: function(){
-
-			   			console.log( 'style', $(elem).attr( 'style' ) );
-
-			    	   //reg = new RegExp('\\-([a-zA-Z])*\\-transform\\s*:\\s*translate3?d?\\s*\\(([0-9.\-]*)px\\s*\\,\\s*([0-9.\-]*)px\\s*(\\,\\s*([0-9.\-])*p(x|t))?\\)','g');
 			           reg = new RegExp('(\\-[a-zA-Z]*\\-)?transform\\s*:\\s*translate3?d?\\s*\\(([0-9.\-]*)px\\s*\\,\\s*([0-9.\-]*)px\\s*(\\,\\s*([0-9.\-])*p(x|t))?\\s*\\)?','g');
 			           $(elem).attr( 'style' ).replace(reg, function( match, prefx, x, y, z ){
 			               m = 'matrix(1, 0, 0, 1, ' + x + ', ' + y + ')';
 			           });
-
 			           return m;
-
 			   		},
 			   		def: function(){
 			   			return $(elem).css( prop );
@@ -302,12 +298,11 @@
 			   	   }
 		   	   }
 
-		   	   return val;
+		   	   return val === "auto" ? 0 : val;
 	    },
 
 	    isTranslatable: function(){
-	    	//TODO Manage RIGHT & BOTTOM
-	        return this.prop == 'left' || this.prop == 'top' ? true : false;
+	    	return /^(?:(top|bottom|left|right))$/i.test( this.prop );
 	    },
 
 		getTranslateMode: function(x, y) {
@@ -318,13 +313,15 @@
 
 		   var elem = this.elem,
 		   	   prop = this.prop,
-		   	   initMatrix, initArray, x, y; 
+		   	   initMatrix, initArray, x, y,
+		   	   mult = /(bottom|right)/.test(prop) ? -1 : 1;
 
 		   initMatrix = this.getCurrentVal( support.getPrefixed( 'transform', false ) );
 
 		   initArray = initMatrix != 'none' ? this.cssMatrixToArray( initMatrix ) : [ 1, 0, 0, 1, 0, 0 ];
-           x = prop === 'left' ? val : initArray[4];
-           y = prop === 'left' ? initArray[5] : val;
+
+           x = /(left|right)/.test(prop) ? val * mult : initArray[4];
+           y = /(left|right)/.test(prop) ? initArray[5] : val * mult;
 
 		   return [ x, y ];
 		},
@@ -369,7 +366,7 @@
 				}
 
 				/* check if we are dealing with both top and left anim using csstransform */
-			    this.isTopLeft = this.prop == 'left' ? $(elem).data('fx.top') : $(elem).data('fx.left');
+			    this.isTopLeft = this.prop == 'left' || this.prop == 'right' ? $(elem).data('fx.top') : $(elem).data('fx.left');
 
 			    /* apply css transform event if it is was alreay defined to write it as inline css */
 				//$(elem).css( support.cssprefix + 'transform', self.getTranslateMode( initTrans.x, initTrans.y ) );
@@ -442,7 +439,7 @@
 
 	       if( isTranslatable ){
 
-	        	initval = prop === 'left' ? this.initTrans.x : this.initTrans.y;
+	        	initval = prop == 'left' || prop == 'right' ? this.initTrans.x : this.initTrans.y;
 
 	        	if( unit === "%" ){
             	 	start = this.convertPercentPx( start, 'tpx' );
@@ -462,8 +459,8 @@
 		         */
 			    if( this.isTopLeft ){
 			        clearTimeout( this.isTopLeft.fxtimer );
-			        x = this.prop === 'left' ? trans[0] : this.isTopLeft.trans[0];
-			        y = this.prop === 'top' ? trans[1] : this.isTopLeft.trans[1];
+			        x = this.prop === 'left' || prop == 'right' ? trans[0] : this.isTopLeft.trans[0];
+			        y = this.prop === 'top' || prop == 'right'? trans[1] : this.isTopLeft.trans[1];
 			    }
                 
                 if( isTransition && !this.isTopLeft ){
@@ -508,7 +505,6 @@
 
 			newval = start + ( ( ( end - start ) * e) / 100 );
             if( newval > 1 && unit != '%' ) newval = newval << 0;
-            
             this.applyCss( newval );
 	   },
 
@@ -667,32 +663,40 @@
 		}
         
         var rfxtypes = /^(?:toggle|show|hide)$/,
-        	rfxanim = /^(?:width|height|top|right|bottom|left|opacity|scrolltop)$/,
-        	rfxpercent = /^(?:width|height|top|right|bottom|left)$/;
+        	rfxanim = /^(?:opacity|scrollTop|width|height|((margin|padding)?-?(top|bottom|left|right)))$/i,
+        	rfxpercent = /^(?:width|height|((margin|padding)?-?(top|bottom|left|right)))$/i,
+        	rfxhorizontal = /^(?:width|((margin|padding)?-?(left|right)))$/i,
+        	rfxvertical = /^(?:height|((margin|padding)?-?(top|bottom)))$/i;
 
         
-		//function doFx(){
+		/* call the function now, or add it the the fx queue */
 		return this[ optall.queue === false ? "each" : "queue" ](function() {
 
-				var opt = speed && typeof speed === "object" ? $.extend( $.fxConfig, speed ) : $.fxConfig;
-        		opt.duration = typeof speed === "number" ? speed : opt.duration;
-                opt.easing = easing || 'swing';
-                opt.callback = callback || function(){};
-                
-				opt = jQuery.extend( opt, optall );
-
-				var f, start, end, unit, startunit, endunit,
+				var opt = speed && typeof speed === "object" ? $.extend( $.fxConfig, speed ) : $.fxConfig,
+					f, start, end, unit, startunit, endunit,
 					parts, startParts, $parent, parentDim;
 
+				if( typeof speed === "number" ){
+	        		opt.duration = speed ? speed : opt.duration;
+	                opt.easing = easing? easing : opt.easing;
+	                opt.callback = callback ? callback : opt.callback;
+            	}
+
+				opt = jQuery.extend( opt, optall );
+
+
 				for( var p in props ){
-    				
-    				if ( rfxtypes.test( p ) ){
-    					/** 
-    					 * check if we are dealing with 'show','toggle' or 'hide' prop
-    					 * TODO check if the property can be animated comparing it to an array of allowed properties
-    					 * instead of using the jquery rfxtypes regexp
-    					 */
-    				} else { 				
+    				/**
+ 				     *  CamelCase to hyphen delimited property
+    				 */
+    				var key = p; /** keep a reference to the real key name */ 
+    				p = p.replace(/([a-z])([A-Z])/g, function(str, p1, p2) { return p1 + '-' + p2.toLowerCase(); });
+
+				    /** 
+					 * check if we are dealing with a supported anim prop
+					 */
+    				if ( rfxanim.test( p ) ){
+
 						/**
 						 * Set display property to inline-block for height/width
 						 * animations on inline elements that are having width/height animated
@@ -711,11 +715,11 @@
 
 
 						$parent = f.parent = $(this).parent();
-                        parentDim = f.parentDim = p === 'left' || p == 'width' ?  $parent[ 'width' ]() : $parent[ 'height' ]();
+                        parentDim = f.parentDim = rfxhorizontal.test( p ) ?  $parent[ 'width' ]() : $parent[ 'height' ]();
                         if( $parent.css('position') === "static" ) $parent.css('position', 'relative');
 
 						/* get the end value as [ value, number, unit ] array */
-						parts = f.getUnit( props[p] );
+						parts = f.getUnit( props[key] );
 						startParts = f.getUnit( f.getCurrentVal( p , 'gcs', false ) );
 
 						if( parts ){
@@ -747,10 +751,8 @@
                             
 							f.createFx( start, end, endunit );
 
-						} else {
-
-							f.createFx( start, prop[p], "" );
-
+						} else {	
+							f.createFx( start, props[key], "" );
 						}	                                           
     				}
     			};
@@ -758,10 +760,6 @@
 			// For JS strict compliance
 			return true;
 		});
-		//};
-        
-        /* call the function now, or add it the the fx queue */
-        //return optall.queue === false ? this.each( doFx ) : this.queue( optall.queue, doFx );
 
 	};
 
