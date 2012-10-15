@@ -623,7 +623,7 @@
 			   left, top,
 			   endX, endY, endProp, oppProp;
 
-           initMatrix = this.cssMatrixToArray( c );
+           initMatrix = c != 'none' ? this.cssMatrixToArray( c ) : [1,0,0,1,0,0];
            
            if( this.unit === "%" ){
         	   start = this.convertPercentPx( start, 'tpx' );
