@@ -1,5 +1,6 @@
 /**
  * jQuery.fx get the best animations from your browser
+ * @version : 0.8.1 
  * @author : Nicolas Riciotti aka Twode
  * @fileoverview : this plugin offers an enhanced version of jquery animate using :
  * csstransitions, csstransform( translate/translate3d ), requestAnimationFrame
@@ -369,7 +370,7 @@
 			    this.isTopLeft = this.prop == 'left' || this.prop == 'right' ? 
 															    $(elem).data('fx.top') || $(elem).data('fx.bottom') :
 															    $(elem).data('fx.left') || $(elem).data('fx.right');
-					
+
 			    /* apply css transform event if it is was alreay defined to write it as inline css */
 				//$(elem).css( support.cssprefix + 'transform', self.getTranslateMode( initTrans.x, initTrans.y ) );
 
@@ -441,9 +442,6 @@
 
 
 	       if( isTranslatable ){
-
-
-	       		console.log('AAPLLYY:', this.prop, this.isTopLeft);
 
 	        	initval = prop == 'left' || prop == 'right' ? this.initTrans.x : this.initTrans.y;
 
