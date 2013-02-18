@@ -109,7 +109,9 @@
 
 
 	       while( l-- ){
-	          if ( vendors[l] + propd in div.style  ){
+	       	  if ( prop in div.style  ){
+	            return prop;
+	          } else if ( vendors[l] + propd in div.style  ){
 	            return formatForCss ? cssPrefixes[l] + prop.toLowerCase() : vendors[l] + propd;
 	          }else if( window[vendors[l].toLowerCase()+propd] != undefined ){
 	            return vendors[l].toLowerCase() + propd;
